@@ -1,0 +1,414 @@
+---
+title: "Homework 2"
+author: "Ziyang (Bob) Ding"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:  html_document
+latex_engine: xelatex
+runtime: shiny
+mainfont: "Times New Roman"
+---
+
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+</style>
+
+
+## Problem 1
+
+**When applying rejection sampling sampling to a posterior distribution $\pi(\theta | y) \propto \pi_{0}(\theta) f(y | \theta)$ using
+as candidate density the prior $\pi_{0}(\theta),$ show that the bound $c$ can be taken to be the likelihood function
+evaluated at the MLE.**
+
+&nbsp;
+
+**Proof**
+
+In short, we want to show that
+$$
+\begin{aligned}
+    f(y | \hat{\theta}_{MLE})\pi_0(\theta) &\geq \pi(\theta | y)\\
+    &= \frac{\pi_0(\theta) f(y | \theta)}{p(y)}\\
+    f(y | \hat{\theta}_{MLE}) &\geq \frac{f(y | \theta)}{p(y)}\\
+    \Longleftrightarrow f(y | \hat{\theta}_{MLE}) - \frac{f(y | \theta)}{p(y)} &\geq 0\\
+    \Longleftrightarrow \inf (f(y | \hat{\theta}_{MLE}) - \frac{f(y | \theta)}{p(y)}) &\geq 0\\
+\end{aligned}
+$$
+
+Then, we can take derivative to find out the infimum of the left hand side:
+
+$$
+\begin{aligned}
+    \frac{\partial (f(y | \hat{\theta}_{MLE}) - \frac{f(y | \theta)}{p(y)})}{\partial \theta}  = - \frac{\partial f(y | \theta)}{ p(y)\partial \theta} = 0\\
+\end{aligned}
+$$
+
+If MLE exist, then we know that the left hand side take infimum at $\theta = \hat{\theta}_{MLE}$. Then
+
+$$
+\begin{aligned}
+    \inf (f(y | \hat{\theta}_{MLE}) - \frac{f(y | \theta)}{p(y)}) &= f(y | \hat{\theta}_{MLE}) - \frac{f(y | \hat{\theta}_{MLE})}{p(y)}\\
+    &= f(y | \hat{\theta}_{MLE})(1 - \frac{1}{p(y)}) \geq 0
+\end{aligned}
+$$
+Therefore, we know that the constant $c$ can be taken to be the likelihood function evaluated at the MLE.
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+## Problem 2
+**$(\mathrm{RC} 3.1-2)$ For the normal-Cauchy Bayes estimator**
+$$
+\begin{aligned}
+\delta(x)=\frac{\int_{-\infty}^{\infty} \frac{\theta}{1+\theta^{2}} e^{-\frac{1}{2}(x-\theta)^{2}} d \theta}{\int_{-\infty}^{\infty} \frac{1}{1+\theta^{2}} e^{-\frac{1}{2}(x-\theta)^{2}} d \theta}
+\end{aligned}
+$$
+
+* (a) **Plot the integrand and use Monte Carlo integration to calculate the integral.**
+
+&nbsp;
+
+**Proof**
+
+First, I have a question about this problem: when we are plotting the integrand, we can notice that the integrand is actually a function that depends both x and $\theta$. I don't how we're plotting this 2 dimensional function. Therefore, I directly plotted the delta for all the x.
+
+```{r}
+
+# Monte Carlo Integration on the nominator
+f11 = function(x, n = 1000){
+  theta = rnorm(n, x, 1)
+  int1 = mean(theta/(1+theta^2))
+  return(mean(int1))
+}
+
+# Monte Carlo Integration on the denominator
+f12 = function(x, n = 1000){
+  theta = rnorm(n, x, 1)
+  int2 = mean(1/(1+theta^2))
+  return(mean(int2))
+}
+
+f11 = Vectorize(f11)
+f12 = Vectorize(f12)
+
+# Get 200 xs
+x = seq(-20,20,length.out = 200)
+nu = f11(x)
+de = f12(x)
+
+f1 = function(x, n = 1000){
+  theta = rnorm(n, x, 1)
+  int1 = mean(theta/(1+theta^2))
+  int2 = mean(1/(1+theta^2))
+  return(int1/int2)
+}
+
+
+f1 = Vectorize(f1)
+
+y1 = f1(x)
+
+
+par(mfrow=c(2,2))
+plot(x, nu, main = 'numerator', type='l')
+plot(x, de, main = 'denomenator', type='l')
+plot(x, y1, main = 'delta(x)', type = 'l')
+```
+
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (b) **Monitor the convergence with the standard error of the estimate. Obtain 3 digits of accuracy with probability. 95**
+
+&nbsp;
+
+**Proof**
+
+```{r}
+f2 = function(x, n1 = 1000, n2 = 100){
+  y1 = rep(0, n1)
+  for(i in 1:n1){
+    y1[i] = f1(x, n2)
+  }
+  return(sd(y1))
+}
+
+
+f2 = Vectorize(f2)
+
+par(mfrow = c(2,2))
+plot(x, f2(x, n2 = 10), main = 'standard error, n = 10', type = 'l')
+plot(x, f2(x, n2 = 50), main = 'standard error, n = 50', type = 'l')
+plot(x, f2(x, n2 = 100), main = 'standard error, n = 100', type = 'l')
+plot(x, f2(x, n2 = 500), main = 'standard error, n = 500', type = 'l')
+print(round(f1(1, 1e8), 3))
+```
+
+From the above plot we can see that the convergence rate is around $O\left(\frac{1}{\sqrt{n}}\right)$
+\[
+\text { qnorm }(0.975) \times \text { se }<0.001
+\]
+To get 3 digits of accuracy with probability 0.95, we use 10 " iteration to guarantee that. For instance, when $x=1,$ we have
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (c) **Use rejection sampling with a Cauchy candidate distribution to generate a sample from the posterior distribution and calculate the estimator.**
+
+&nbsp;
+
+**Proof**
+$$
+\begin{aligned}
+\frac{p(\theta | x)}{p(\theta)} &=\frac{\frac{1}{\sqrt{2 \pi}} e^{-\frac{1}{2}(x-\theta)^{2}}}{\int \frac{1}{\pi\left(1+\theta^{2}\right)} \frac{1}{\sqrt{2 \pi}} e^{-\frac{1}{2}(x-\theta)^{2}} d \theta} \leq 2
+\end{aligned}
+$$
+
+
+```{r}
+rej = function(x, n = 1000, M = 2){
+  sample = rep(0, n)
+  theta = rnorm(1000,x,1)
+  int = mean(1/(pi*(1+theta^2)))
+  j = 1
+  for(i in 1:n){
+    cand = rcauchy(1)
+    u = runif(1)
+    if(u <= dnorm(cand, x, 1)/(M*int)){
+      sample[j] = cand
+          j = j+1
+    }
+  }
+  return (mean(sample[1:(j-1)]))
+}
+
+rej = Vectorize(rej)
+
+x = seq(-20, 20, length = 200)
+
+plot(x, rej(x), main='Rejection Sampling Estimate', type = 'l')
+```
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (d) **Design a computer experiment to compare Monte Carlo error when using**
+
+  + i. **the same random variables $\theta_{i}$ in numerator and denoninator, or**
+  
+  + ii. **different random variables.**
+
+&nbsp;
+
+**Proof**
+
+```{r}
+f13 = function(x, n1 = 100, n2 = 100){
+   y1 = rep(0, n1)
+   y2 = rep(0, n1)
+  for(i in 1:n1){
+    y1[i] = f11(x, n2)
+    y2[i] = f12(x, n2)
+  }
+  return(sd(y1/y2))
+}
+
+
+f13 = Vectorize(f13)
+
+par(mfrow = c(2,2))
+x = seq(-10, 10, length.out = 200)
+plot(x, f2(x), main = 'Same rv', type='l')
+plot(x, f13(x), main = 'Different rv', type='l')
+plot(x, f13(x)/f2(x), main = 'quotient', type='l')
+```
+
+Two different actually agrees much around $x = 0$. However, when $x$ becomes larger, using the same random variable leads to lower standard deviation. Especially when you see that when $x=10$ the standard deviation is around half of the other method.
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+## Problem 3
+* (a) **For a standard normal random variable $Z,$ calculate $P(Z>2.5)$ using Monte Carlo sums based on indicator functions. How many simulated random variables are needed to obtain 3 digits of accuracy?**
+
+&nbsp;
+
+**Proof**
+
+Because we know that
+$$
+\mathbb{E}[ \frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n}] = \mathbb{P}(X \geq 2.5)
+$$
+
+Also, $\mathbb{E}[ \frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n}] \in L_1, L_2$. Therefore we can apply the Chebyshev inequality here.
+
+$$
+\begin{aligned}
+    X &\sim N(0,1)\\
+    \mathbb{P} (\left|\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} - \mathbb{P}(X \geq 2.5) \right| \geq 10^{-3}) &\leq  \frac{\mathrm{Var}\left(\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} \right)}{10^{-6}}\\
+    \mathbb{P} (\left|\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} - \mathbb{P}(X \geq 2.5) \right| \leq 10^{-3}) &\geq 1-  \frac{\mathrm{Var}\left(\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} \right)}{10^{-6}}\\
+\end{aligned}
+$$
+
+This is from Chebyshev. To ensure 0.95 probability of convergence of the error within 3 digits, we need to have that 
+
+$$
+\begin{aligned}
+    1-  \frac{\mathrm{Var}\left(\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} \right)}{10^{-6}} &\geq 0.95\\
+    \frac{\mathrm{Var}\left(\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} \right)}{10^{-6}} &\leq 0.05\\
+    \mathrm{Var}\left(\frac{\sum_{i=1}^n \mathrm{1}(X_i > 2.5)}{n} \right) &\leq 5 \times 10^{-8}
+\end{aligned}
+$$
+
+We may denote $\mathbb{P}(X > 2.5) = p$. Therefore we have
+
+$$
+\begin{aligned}
+    \frac{np(p-1)}{n^2} &\leq 5 \times 10^{-8}\\
+    n &\geq 2 \times 10^{7} p(1-p)\\
+\end{aligned}
+$$
+
+```{r}
+p = 1 - pnorm(0.25)
+p*(1-p) * 2 * (10^7)
+
+```
+
+Therefore, we need 4805141 samples.
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (b) **Using Monte Carlo sums verify that if $X \sim \operatorname{Gam}(1,1), P(X>5.3) \approx .005 .$ Find the exact .995 cutoff to three digits of accuracy.**
+
+&nbsp;
+
+**Proof**
+
+```{r}
+ga = function(a, n=1000){
+  x = rgamma(n, 1, 1)
+  return (mean(x>a))
+}
+1-ga(5.3, 1e7)
+
+```
+
+```{r}
+ga1 = function(n=1000){
+  x = rgamma(n, 1, 1)
+  return (quantile(x, 0.995))
+}
+
+ga1 = Vectorize(ga1)
+x = 10^c(3,4,5,6,7)
+ga1(x)
+```
+
+```{r}
+qgamma(0.995, 1, 1)
+```
+
+
+We see that $\mathbb{P}(X > 5.3) \approx 0.005$. The cutoff is around 5.298.
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+## Problem 4
+
+* (a) **In class we discussed the optimal instrumental distribution for importance sampling, which is often impractical. Show that if we use the renormalized weight estimator ( $\tilde{\theta}$ from class), we get**
+
+$$
+\begin{aligned}
+\tilde{\theta}=\frac{\sum_{i=1}^{m} h\left(x^{(i)}\right)\left|h\left(x^{(i)}\right)\right|^{-1}}{\sum_{i=1}^{m}\left|h\left(x^{(i)}\right)\right|^{-1}}
+\end{aligned}
+$$
+
+&nbsp;
+
+**Proof**
+
+If we use $g *(x)=\frac{|h(x)| \pi(x)}{f|h(z)| \pi(z) d s}$, Then we end up with
+
+$$
+\begin{aligned}
+\bar{\theta} &=\frac{\sum_{i=1}^{m} h\left(x_{i}\right) w\left(x_{i}\right)}{\sum_{i=1}^{m} w\left(x_{i}\right)} \\
+&=\frac{\sum_{i=1}^{m} h\left(x_{i}\right) \frac{\pi\left(x_{i}\right)}{g *\left(x_{i}\right)}}{\frac{\sum_{i=1}^{m} h\left(x_{i}\right) \frac{\pi\left(x_{i}\right)}{g *\left(x_{i}\right)}}{g *\left(x_{i}\right)}} \\
+&=\frac{\sum_{i=1}^{m} h\left(x_{i}\right) \frac{1}{\left|h\left(x_{i}\right)\right|}}{| \frac{m}{\left|h\left(x_{i}\right)\right|}}
+\end{aligned}
+$$
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (b) **Compare (in a simulation experiment) the performance of the regular Monte Carlo estimator of**
+\begin{align*}
+\int_{1}^{2} \frac{e^{-\frac{x^{2}}{2}}}{\sqrt{2 \pi}} d x=\Phi(2)-\Phi(1)
+\end{align*}
+**with that of an estimator based on an optimal choice of instrumental distribution.**
+
+&nbsp;
+
+**Proof**
+
+```{r}
+correct = pnorm(2)-pnorm(1)
+correct
+
+# Importance sampling
+n=460000
+U = runif(n,1,2)
+mean((exp(-0.5*U^2)/sqrt(2*pi)))
+
+# Monte Carlo
+p=pnorm(2)-pnorm(1)
+(qnorm(0.975)^2*p*(1-p)/(0.001)^2) 
+
+MC = function(n){
+  x = rnorm(n)
+  return (sum(x<2 & x>1)/n)
+}
+
+MC(460000)
+```
+
+\textbf{Conclusion}: Importance sampler is better than monte carlo. With the same sample size, importance sampler is more accurate.
