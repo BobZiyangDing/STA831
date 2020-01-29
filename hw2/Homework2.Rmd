@@ -3,9 +3,6 @@ title: "Homework 2"
 author: "Ziyang (Bob) Ding"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:  html_document
-latex_engine: xelatex
-runtime: shiny
-mainfont: "Times New Roman"
 ---
 
 <style type="text/css">
@@ -220,9 +217,7 @@ plot(x, rej(x), main='Rejection Sampling Estimate', type = 'l')
 &nbsp;
 
 * (d) **Design a computer experiment to compare Monte Carlo error when using**
-
   + i. **the same random variables $\theta_{i}$ in numerator and denoninator, or**
-  
   + ii. **different random variables.**
 
 &nbsp;
