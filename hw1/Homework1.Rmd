@@ -1,0 +1,356 @@
+---
+title: "Homework1"
+output: html_document
+author: "Ziyang Ding"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## Question 1
+
+**$\left(\mathrm{RC} 1^{\mathrm{st}} \text { ed: } 2.5\right)$ The RANDU generator, once popular on IBM machines, is based on the recursion:
+\[
+X_{n+1}=65539 X_{n} \quad \bmod 2^{31}
+\]
+Illustrate the undesirable behavior of this generator with a computer experiment, and produce a $3 \mathrm{D}$ plot which demonstrates the problem clearly. (Hint: show $X_{t+1}=\left(6 X_{t}-9 X_{t-1}\right)$ mod $2^{31}$**
+
+
+Prove:
+
+\[
+\begin{aligned}
+X_{n+1} &=65539 X_{n}=\left(2^{16}-3+6\right) X_{n} \\
+\left(2^{16}-3\right) X_{n} &=\left(2^{16}-3\right)\left(2^{16}+3\right) X_{n-1} \\
+&=\left(2^{32}-9\right) X_{n-1} \\
+&=-9 X_{n-1} \bmod 2^{31} \\
+\Rightarrow X_{n+1} &=\left(6 X_{n}-9 X_{n-1}\right) \bmod 2^{31}
+\end{aligned}
+\]
+
+$2^{31} = 65339 | X_{n+1}-6 X_{n}+9 X_{n-1}$
+
+Now we may proceed into making a plot:
+
+```{r}
+x = rep(0,1000)
+y = rep(0,1000)
+z = rep(0,1000)
+for(i in 1:1000){
+  x[i] = sample(1:2^(31), 1)/(2^31)
+  y[i] = (65539 * x[i]) %% 1
+  z[i] = (6*y[i] - 9*x[i]) %% (1)
+}
+library(plotly)
+plot_ly(x=x, y=y, z=z, type="scatter3d", mode="markers", size=0.0001)
+```
+
+
+
+
+## Question 2
+
+**In class we discussed the Box-Muller algorithm for generating pairs of iid $N(0,1)$ random variates.**
+
+* a **Show that if $X_{1}$ and $X_{2}$ are independent standard normal random variables then their polar coordinates $R=\sqrt{X_{1}^{2}+X_{2}^{2}}$ and $\theta=$ $\tan ^{-1} X_{1} / X_{2}$ are also independent and derive their distributions.**
+
+* b **Show how to generate $R$ and $\theta$ by the inverse cdf method, and a pair of standard normals via the substitution $X_{1}=R \cos \theta$ and $X_{2}=$ $R \sin \theta$**
+
+* c **Implement the Box-Muller algorithm, and compare with the method described in class based on $k=12$ independent uniform $[0,1]$ r.v. $\mathrm{s}$ and the CLT. Are the two "statistically indistinguishable"? How do the respective computational costs compare?**
+
+**Prove:**
+
+* (a)
+
+
+\begin{aligned}
+            (R, \theta) &=\left(\sqrt{X_{1}^{2}+X_{2}^{2}}, \arctan \left(X_{1} / X_{2}\right)\right) \\
+            \left(X_{1}, X_{2}\right)&=(R \cos \theta, R \sin \theta) \\
+            J&= \left[\begin{array}{cc}
+            {\cos \theta} & {-R \sin \theta} \\
+            {\sin \theta} & {-R \sin \theta} \\
+            {\sin \theta} & {R \cos \theta}
+            \end{array}\right] =\left[\begin{array}{cc}
+            {\frac{X_{1}}{\sqrt{X_{1}^{2}+X_{2}^{2}}}} & {\frac{X_{2}}{\sqrt{X_{1}^{2}+X_{2}^{2}}}} \\
+            {\frac{X_{2}}{\sqrt{X_{1}^{2}+X_{2}^{2}}}} & {\frac{X_{2}^{2}}{\sqrt{X_{1}^{2}+X_{2}^{2}}}}
+            \end{array}\right] \\
+            &=\frac{1}{2 \pi} e^{-\frac{x_{1}^{2}}{2}} R \\
+            &=f_{R}(R) f_{\theta}(\theta)\\
+            &=e^{-\frac{R^{2}}{2}} R \frac{1}{2 \pi}
+\end{aligned}
+So
+\[
+    \begin{aligned}
+    R^{2} & \sim \operatorname{Exp}\left(\frac{1}{2}\right) \\
+    \theta & \sim U[0,2 \pi]
+    \end{aligned}
+\]
+
+
+* (b)
+
+Sample $U_{1} \sim U_{1}[0,1]$ and let $R=\sqrt{-2 \log U_{1}}$, sample $U_{2} \sim U[0,1]$ and let $\theta=2 \pi U$ and
+    \[
+    \begin{array}{l}
+    {X_{1}=\sqrt{-2 \log U_{1}} \cos \left(2 \pi U_{2}\right)} \\
+    {X_{2}=\sqrt{-2 \log U_{2}} \sin \left(2 \pi U_{2}\right)}
+    \end{array}
+    \]
+
+* (c)
+
+```{r}
+n = 1000
+bm = rep(0,n)
+for(i in 1:(n/2)){
+  U1 = runif(1)
+  U2 = runif(1)
+  R = sqrt(-2*log(U1))
+  theta = 2*pi*U2
+  bm[2*i-1] = R*cos(theta)
+  bm[2*i] = R*sin(theta)
+}
+## clt
+clt = rep(0,n)
+for(i in 1:n){
+  U = runif(12)
+  clt[i] = sum(U)-6
+}
+
+ks.test(bm, clt)
+ks.test(bm, pnorm)
+ks.test(clt, pnorm)
+```
+
+
+## problem 3
+
+**To generate the Beta distribution $\mathcal{B} e(\alpha, \beta)$ we can use the following representation:**
+
+* (a)  **Show that, if $Y_{1} \sim \mathcal{G} a(\alpha, 1), Y_{2} \sim \mathcal{G} a(\beta, 1),$ then**
+\[
+X=\frac{Y_{1}}{Y_{1}+Y_{2}} \sim \mathcal{B} e(\alpha, \beta)
+\]
+
+* (b)  **Use part (a) to construct an algorithm to generate a Beta random variable**.
+* (d) **Compare this algorithm with an Accept-Reject algorithm based on (i) the uniform distribution**
+
+Proof:
+
+* (a) 
+\[
+\begin{aligned}
+f_{x, y}(X, Y) &=f_{Y_{1}, Y_{2}}\left(Y_{1}, Y_{2}\right)|d e t J| \\
+& \propto(X Y)^{\alpha-1} e^{-X Y}(Y-X Y)^{\beta-1} e^{-(Y-X Y)} Y \\
+& \propto X^{\alpha-1}(1-X)^{\beta-1} Y^{\alpha+\beta-1} e^{-Y} \\
+& \propto f_{X}(X) f_{Y}(Y)
+\end{aligned}
+\]
+So $X \text { and } Y \text { are independent and } X \sim \text { beta( } \alpha, \beta)(Y \sim G(\alpha+\beta, 1))$
+
+* (b)
+
+```{r}
+random_beta = function(n, alpha, beta){
+  X = rep(0, n)
+  for(i in 1:n){
+    Y1 = rgamma(1, alpha, 1)
+    Y2 = rgamma(1, beta, 1)
+    X[i] = Y1/(Y1+Y2) 
+  }
+  return(X)
+}
+```
+
+* (d)
+
+```{r}
+reject_sampling_beta = function(n, alpha, beta, C){
+  X = rep(0, n)
+  j = 1
+  for(i in 1:n){
+    Y = runif(1)
+    U = runif(1)
+    if(U < dbeta(Y, alpha, beta)/(C*1)){
+      X[j] = Y
+      j = j + 1
+    }
+  }
+  return (X[1:j])
+}
+
+## alpha = 1.5, beta = 4
+rb = random_beta(100, 1.5, 4)
+rs = reject_sampling_beta(200, 1.5, 4, 2)
+ks.test(rb, function(x){return(pbeta(x,1.5,4))})
+
+ks.test(rs, function(x){return(pbeta(x,1.5,4))})
+
+## alpha = 2, beta = 2
+rb = random_beta(100, 2, 2)
+rs = reject_sampling_beta(200, 2, 2, 2)
+ks.test(rb, function(x){return(pbeta(x,2,2))})
+
+ks.test(rs, function(x){return(pbeta(x,2,2))})
+
+
+## alpha = 4, beta = 1.5
+rb = random_beta(100, 4, 1.5)
+rs = reject_sampling_beta(200, 4, 1.5, 2)
+ks.test(rb, function(x){return(pbeta(x,4,1.5))})
+
+ks.test(rs, function(x){return(pbeta(x,4,1.5))})
+
+```
+
+This shows that the sampling method is still effective. But, depending on the value of c, the Accept-Rejection sampling algorithm is less efficient depending on the value.
+
+
+
+
+## Problem 4
+
+**For the Accept-Reject algorithm [A.4], with $f$ and $g$ properly normalized,**
+
+* (a) **Show that the probability of accepting a random variable is**
+\[
+P\left(U<\frac{f(X)}{M g(X)}\right)=\frac{1}{M}
+\]
+
+* (b) **Show that $M \geq 1$**
+
+* (c) **Let $N$ be the number of trials until the $k$ th random variable is accepted. Show that, for the normalized densities, $N$ has the negative binomial distribution $\mathcal{N} e g(k, p),$ where $p=1 / M .$ Deduce that the expected number of trials until $k$ random variables are obtained is $k M .$**
+
+* (d) **Show that the bound $M$ does not have to be tight; that is, there may be $M^{\prime}<M$ such that $f(x) \leq M^{\prime} g(x) .$ Give an example where it makes sense to use $M$ instead of $M^{\prime}$**
+
+* (e) **When the bound $M$ is too tight (i.e., when $f(x)>M g(x)$ on a non-negligible part of the support of $f),$ show that the algorithm $[A .4]$ does not produce a generation from $f .$ Give the resulting distribution.**
+
+
+**Proof**
+
+* (a)
+\begin{aligned}
+P\left(U<\frac{f(X)}{M g(X)}\right) &=\int_{-\infty}^{\infty} \int_{0}^{\frac{f(x)}{M g(x)}} g(x) d u d x \\
+&=\int_{-\infty}^{\infty} \frac{f(x)}{M g(x)} g(x) d x \\
+&=\frac{1}{M}
+\end{aligned}
+
+* (b) 
+\[
+f(x) \leq M g(x) \Rightarrow \int f(x) \leq \int M g(x) \Rightarrow 1 < M
+\]
+
+* (c)
+
+\begin{aligned}
+\mathbb{E}( N) &=\sum_{n=k}^{\infty}\left(\begin{array}{c}
+{n-1} \\
+{k-1}
+\end{array}\right) n(1-p)^{n-k} p^{k} \\
+&=k \sum_{n=k}^{\infty} \frac{n !}{(n-k) ! k !}(1-p)^{n-k} p^{k} \\
+&=k \frac{1}{p} \\
+&=k M
+\end{aligned}
+
+* (d)
+
+Without violating the assumption that $f(x) < Mg(x)$, we may push M to its limit such that 
+\[
+M = \max \frac{f}{g}
+\]
+In this way, we end up with that the algorthm is much more effcient. If $M$ is hard to calculate the exact form, we may sacrifice a bit by taking M is bigger than enough and ensure the correctness.
+
+
+* (e)
+
+\begin{aligned}
+&\quad P\left(X \leq x | U \leq \frac{f(x)}{M g(x)}\right)\\
+&=\frac{P\left(X \leq x, U \leq \frac{f(x)}{M g(x)}\right)}{P\left(U \leq \frac{f(x)}{M g(x)}\right)}\\
+&=\frac{\int_{-\infty}^{x} \int_{0}^{\min \left(1, \frac{f(t)}{M g(t)}\right)} g(t) d u d t}{\int_{-\infty}^{\infty} \int_{0}^{\min \left(1, \frac{f(t)}{M g(t)}\right)} g(t) d u d t}\\
+&=\frac{\int_{f(t) \leq M g(t), t \leq x} \frac{f(t)}{M} d t+\int_{f(t)>M g(t), t \leq x} \frac{f(t)}{M g(t)} d t}{\int_{f(t) \leq M g(t)} \frac{f(t)}{M} d t+\int_{f(t)>M g(t)} \frac{f(t)}{M g(t)} d t}\\
+\end{aligned}
+
+This is different from the given formula.
+
+
+
+## Problem 5
+
+**Given a normal distribution $N(0,1)$ restricted to $\mathbb{R}^{+},$ construct an AcceptReject algorithm based on $E x p(\lambda)$ and optimize in $\lambda .$ Repeat for intervals $[1, \infty),[2, \infty),[4, \infty) .$ For each interval, compare the efficiency to direct rejection sampling from the normal.**
+
+
+**Prove:**
+
+\begin{aligned}
+M(\lambda) &=\max \left(\frac{f(x)}{g(x)}\right) \\
+&=\max \left(\frac{\frac{1}{\sqrt{2 \pi}(1-\Phi(a))} e^{-\frac{x^{2}}{2}}}{\lambda e^{-\lambda x}}\right)
+\end{aligned}
+
+\begin{aligned}
+\frac{\partial \log M(\lambda)}{\lambda}=\left\{\begin{array}{ll}
+{\lambda-\frac{1}{\lambda}=0, \lambda \geq a} & {\Rightarrow \lambda=1} \\
+{a-\frac{1}{\lambda}, \lambda \leq a} & {\Rightarrow \lambda=\frac{1}{a}}
+\end{array}\right.\\
+\lambda=\left\{\begin{array}{ll}
+{1} & {x \in[0, \infty)} \\
+{1} & {x \in[1, \infty)} \\
+{\frac{1}{2}} & {x \in[2, \infty)} \\
+{\frac{1}{4}} & {x \in[4, \infty)}
+\end{array}\right.
+\end{aligned}
+In this way, we end up with
+
+$$M=\left\{\begin{array}{ll}{\frac{2}{\sqrt{2 \pi}} e^{\frac{1}{2}}} & {x \in[0, \infty)} \\ {\frac{1}{\sqrt{2 \pi}(1-\Phi(1))} e^{\frac{1}{2}}} & {x \in[1, \infty)} \\ {\frac{2}{\sqrt{2 \pi}(1-\Phi(2))} e^{-1}} & {x \in[2, \infty)} \\ {\frac{4}{\sqrt{2 \pi}(1-\Phi(4))} e^{-7}} & {x \in[4, \infty)}\end{array}\right. \text{ and } P(\text { Accept })=\left\{\begin{array}{ll}
+{0.76} & {x \in[0, \infty)} \\
+{0.24} & {x \in[1, \infty)} \\
+{0.08} & {x \in[2, \infty)} \\
+{0.02} & {x \in[4, \infty)}
+\end{array}\right.$$
+
+
+```{r}
+From_Exp = function(n, lambda, start, M){
+  res = rep(0,n)
+  j = 0
+  for(i in 1:n){
+    Y = rexp(1, lambda)
+    U = runif(1)
+    if(Y > start && U < dnorm(Y)/((1-pnorm(start))*M*dexp(Y, lambda))){
+      j = j+1
+      res[j] = Y
+    }
+  }
+  return (res[1:j])
+}
+
+
+length(From_Exp(5000, 1, 0, 1/(sqrt(2*pi)*(1-pnorm(0)))*exp(0.5)))/5000
+length(From_Exp(5000, 1, 1, 1/(sqrt(2*pi)*(1-pnorm(1)))*exp(0.5)))/5000
+length(From_Exp(5000, 0.5, 2, 2/(sqrt(2*pi)*(1-pnorm(2)))*exp(-1)))/5000
+length(From_Exp(5000, 0.25, 4, 4/(sqrt(2*pi)*(1-pnorm(4)))*exp(-7)))/5000
+
+
+Reject = function(n, start){
+  res = rep(0,n)
+  j = 0
+  for(i in 1:n){
+    Y = rnorm(1)
+    if(Y>start){
+      j = j+1
+      res[j] = Y
+    }
+  }
+  if(j==0) return(NULL)
+  return (res[1:j])
+}
+## a = 0
+length(Reject(5000, 0))/5000
+length(Reject(5000, 1))/5000
+length(Reject(5000, 2))/5000
+length(Reject(5000, 4))/5000
+
+```
+

@@ -1,0 +1,359 @@
+\documentclass[11pt]{article}
+%Options: draft shows overfull lines, reqno-leqno puts eq numbers on right/left
+%\documentclass[11pt,draft, reqno,a4paper,psamsfonts]{amsart}
+
+\usepackage{amsmath}		% preloaded by amsart above
+\usepackage{amssymb}
+%\usepackage{eufrak}		% preloaded by amsart(?) above
+%\usepackage[mathscr]{eucal}
+\newcommand\eurfamily{\usefont{U}{eur}{m}{n}}	% Fancy script font
+\DeclareTextFontCommand{\texteur}{\eurfamily}
+\usepackage{amscd}		% for commutative diagrams
+%\usepackage{pslatex}
+%\usepackage[dvips]{epsfig}	% to include PostScript figures
+\usepackage{graphicx}           % replaces epsfig
+%\usepackage[dvips]{epsfig}	% to include PostScript figures
+\newcommand{\comments}[1]{}     % to insert a comment
+\usepackage{verbatim}
+\usepackage{hyperref}
+%\usepackage[active]{srcltx}     % This must be the LAST package
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+
+% 			*** CHANGE DIMENSIONS ***
+\voffset=-0.3truein		% LaTeX has too much space at page top
+% \advance\hoffset by .375 in
+% \advance\voffset by .125 in
+\addtolength{\textheight}{0.3truein}
+\addtolength{\textheight}{\topmargin}
+\addtolength{\topmargin}{-\topmargin}
+%\showthe\textheight
+\textwidth  6.0in		% LaTeX article default 360pt=4.98''
+\oddsidemargin 0pt	% \oddsidemargin  .35in   % default is 21.0 pt
+\evensidemargin 0pt	% \evensidemargin .35in   % default is 59.0 pt
+\mathsurround 1pt
+%\parindent=20pt
+
+% 		*** SWITCH BACK TO PLAIN.TeX USAGE ***
+
+%The following environment is for sets of problems.
+\newenvironment{problems}{\begin{list}{\arabic{numb}.}{\usecounter{numb}
+\setlength{\leftmargin}{20pt}
+\setlength{\labelwidth}{15pt}
+\setlength{\labelsep}{5pt}
+\setlength{\itemsep}{ 15.0pt plus 2.5pt minus 1.0pt}
+}
+}
+{\end{list}}
+
+%The next environment is for the parts a), b), ... of a problem.
+ \newenvironment{parts}{\begin{list}{\alph{bean}) }{\usecounter{bean}
+\setlength{\leftmargin}{20pt}
+\setlength{\labelwidth}{15pt}
+\setlength{\labelsep}{5pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+}
+}
+{\end{list}}
+
+%===============Macros=========================
+
+\renewcommand\smallskip{\vskip\smallskipamount}
+\renewcommand\medskip{\vskip\medskipamount}
+\renewcommand\bigskip{\vskip\bigskipamount}
+
+% 			*** ENVIRONMENT ***
+%\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{cor}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{prop}[theorem]{Proposition}
+%\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{defn}[theorem]{Definition}
+%\newcommand{\Proof}{\noindent{\sc Proof:} }
+\newcounter{bean}
+\newcounter{bacon}
+\newcounter{butter}
+
+% 			*** FONT STUFF ***
+% Font Commands (and examples):			 Example
+\newcommand{\trm}{\textrm}% text roman		\trm{Rush}
+\newcommand{\tbf}{\textbf}% text bold		\tbf{Rush}
+\newcommand{\tit}{\textit}% text italic		\tit{Rush}
+\newcommand{\tsl}{\textsl}% text slanted	  etc.
+\newcommand{\ttt}{\texttt}% text typewriter
+\newcommand{\tsc}{\textsc}% text small caps
+\newcommand{\tsf}{\textsf}% text sans serif
+\newcommand{\tup}{\textup}% text upright
+
+\newcommand{\mrm}{\mathrm}% math roman
+\newcommand{\mbf}{\mathbf}% math bold
+\renewcommand{\mit}{\mathit}% math italic	% undefined by amsart
+%\newcommand{\mit}{\mathit}% math italic
+\newcommand{\msf}{\mathsf}% math sans serif
+\newcommand{\mtt}{\mathtt}% math typewriter
+
+\newcommand{\Cal}{\mathcal}			% Calligraphic - caps only
+\newcommand{\BB}{\mathbb}			% Blackboard Bold - caps only
+% the old \frak is obsolete so reuse its name
+\renewcommand{\frak}{\mathfrak}			% Math Fraktur (= Gothic;
+\newcommand{\BM}{\boldsymbol}			% Bold math symbol Ital
+\DeclareMathAlphabet{\BMi}{OT1}{cmm}{b}{it}	% Bold math italic
+\newcommand{\fancy}{\texteur}			% Fancy script
+
+%   Examples: (assumed enclosed by $  $ )
+%	\Cal{A}		Calligraphic  A
+%	\BB{C}		Blackbord Bold  C
+%	\frak{g}		Fraktur (= Gothic) g
+%	\BM{\alpha}	bold Greek alpha
+%	\BM{\Cal{A}}	bold Calligraphic  A
+%	\fancy{\Large Nice}	Large size fancy:  Nice	      ($  $ not needed)
+%	\BM{R}		bold math italic R
+%	{\mathversion{bold} u'' = f(x)}	  prints formula bold
+
+% 			*** MACROS ***
+%MATH Macros
+
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cJ}{\mathcal{J}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cV}{\mathcal{V}}
+\newcommand{\cW}{\mathcal{W}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cZ}{\mathcal{Z}}
+
+\newcommand{\bA}{\mathbb{A}}
+\newcommand{\bB}{\mathbb{B}}
+\newcommand{\bD}{\mathbb{D}}
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\bF}{\mathbb{F}}
+\newcommand{\bG}{\mathbb{G}}
+\newcommand{\bH}{\mathbb{H}}
+\newcommand{\bI}{\mathbb{I}}
+\newcommand{\bJ}{\mathbb{J}}
+\newcommand{\bK}{\mathbb{K}}
+\newcommand{\bL}{\mathbb{L}}
+\newcommand{\bM}{\mathbb{M}}
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\bO}{\mathbb{O}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bS}{\mathbb{S}}
+\newcommand{\bT}{\mathbb{T}}
+\newcommand{\bU}{\mathbb{U}}
+\newcommand{\bV}{\mathbb{V}}
+\newcommand{\bW}{\mathbb{W}}
+\newcommand{\bX}{\mathbb{X}}
+\newcommand{\bY}{\mathbb{Y}}
+\newcommand{\bZ}{\mathbb{Z}}
+
+
+\newcommand{\abs}[1]{\lvert #1 \rvert}		% absolute value
+\newcommand{\norm}[1]{\lVert #1 \rVert}		% norm
+\newcommand{\ip}[2]{\langle #1,\, #2\rangle}	% ip = inner product
+\newcommand{\ipdot}[2]{ #1\cdot #2}	% ipdot = dot product
+\newcommand{\im}{\text{im}}
+\renewcommand{\ker}{\text{ker}}
+\newcommand{\brak}[2]{[#1,\, #2]}		% brak = bracket
+\newcommand{\brac}[1]{\{\,#1\,\}}		% brac = brace  {  }
+\newcommand{\vect}[1]{\mathbf{#1}}		% for bold face vectors
+\newcommand{\va}{\vec{a}}
+\newcommand{\vb}{\vec{b}}
+\newcommand{\vc}{\vec{c}}
+\newcommand{\ve}{\vec{e}}
+\newcommand{\vu}{\vec{u}}
+\newcommand{\vv}{\vec{v}}
+\newcommand{\vw}{\vec{w}}
+\newcommand{\vx}{\vec{x}}
+\newcommand{\vy}{\vec{y}}
+\newcommand{\vz}{\vec{z}}
+\newcommand{\Bb}{\mbf{b}}
+\newcommand{\Be}{\mbf{e}}
+\newcommand{\Bu}{\mbf{u}}
+\newcommand{\Bv}{\mbf{v}}
+\newcommand{\Bw}{\mbf{w}}
+\newcommand{\Bx}{\mbf{x}}
+\newcommand{\By}{\mbf{y}}
+\newcommand{\Bz}{\mbf{z}}
+%\newcommand{\Vec}[1]{\vec{#1}}
+\newcommand{\bpmat}{\begin{pmatrix}}
+\newcommand{\epmat}{\end{pmatrix}}
+\newcommand{\PM}{\phantom{-}}
+\newcommand{\setm}{\smallsetminus}
+\newcommand{\cc}{,\,}
+\newcommand{\bigstrut}{\rule[-5pt]{0pt}{25pt}}
+\newcommand{\sstrut}{\rule[-3pt]{0pt}{15pt}}
+\newcounter{numb}
+\newcommand{\Numb}{\stepcounter{numb}\arabic{numb}}
+\newcommand{\Numbb}{{\arabic{numb}}{\usecounter{numb}}}
+
+\newcommand{\convd}{\overset{dis.}{\to}}
+\newcommand{\convp}{\overset{pr.}{\to}}
+\newcommand{\conva}{\overset{a.e.}{\to}}
+\newcommand{\covlone}{\overset{$L_1$}{\to}}
+\newcommand{\covltwo}{\overset{$L_2$}{\to}}
+\newcommand{\covlinf}{\overset{$L_\infty$}{\to}}
+\newcommand{\covlp}{\overset{$L_p$}{\to}}
+
+
+\usepackage{Sweave}
+\begin{document}
+
+
+\input{HW1-concordance}
+
+
+
+\parindent=0pt
+\vspace*{-20pt}
+{\bf Statistics 831, Fall 2019 \hfill (Bob) Ziyang Ding}
+\medskip
+
+\begin{center}
+{\large\bf Problem Set 1}
+
+{\sc Due:} Wed. Jan. 22, 2020 
+\end{center}
+
+\begin{parts}
+%=================== ????????????????????????????????????===============================
+
+\item[1]
+\textbf{$\left(\mathrm{RC} 1^{\mathrm{st}} \text { ed: } 2.5\right)$ The RANDU generator, once popular on IBM machines, is based on the recursion:
+\[
+X_{n+1}=65539 X_{n} \quad \bmod 2^{31}
+\]
+Illustrate the undesirable behavior of this generator with a computer experiment, and produce a $3 \mathrm{D}$ plot which demonstrates the problem clearly. (Hint: show $X_{t+1}=\left(6 X_{t}-9 X_{t-1}\right)$ mod $2^{31}$}
+
+\vskip10pt
+{\sc Prove:}
+
+Note that $2^{31}=65536,$ therefore
+\[
+\begin{aligned}
+X_{n+1} &=65539 X_{n}=\left(2^{16}-3+6\right) X_{n} \\
+\left(2^{16}-3\right) X_{n} &=\left(2^{16}-3\right)\left(2^{16}+3\right) X_{n-1} \\
+&=\left(2^{32}-9\right) X_{n-1} \\
+&=-9 X_{n-1} \bmod 2^{31} \\
+\Rightarrow X_{n+1} &=\left(6 X_{n}-9 X_{n-1}\right) \bmod 2^{31}
+\end{aligned}
+\]
+This leads to $2^{31} | X_{n+1}-6 X_{n}+9 X_{n-1}$
+
+Now we may proceed into making a plot:
+
+\begin{Schunk}
+\begin{Sinput}
+> x = rep(0,1000)
+> y = rep(0,1000)
+> z = rep(0,1000)
+> for(i in 1:1000){
++   x[i] = sample(1:2^(31), 1)/(2^31)
++   y[i] = (65539 * x[i]) %% 1
++   z[i] = (6*y[i] - 9*x[i]) %% (1)
++ }
+> library(plotly)
+> plot_ly(x=x, y=y, z=z, type="scatter3d", mode="markers", size=0.001)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{HW1-ReadOrder}
+
+
+\vskip20pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[2]
+\textbf{In class we discussed the Box-Muller algorithm for generating pairs of iid $N(0,1)$ random variates.
+\begin{enumerate}
+    \item[a] Show that if $X_{1}$ and $X_{2}$ are independent standard normal random variables then their polar coordinates $R=\sqrt{X_{1}^{2}+X_{2}^{2}}$ and $\theta=$ $\tan ^{-1} X_{1} / X_{2}$ are also independent and derive their distributions.
+    \item[b] Show how to generate $R$ and $\theta$ by the inverse cdf method, and a pair of standard normals via the substitution $X_{1}=R \cos \theta$ and $X_{2}=$ $R \sin \theta$
+    \item[c] Implement the Box-Muller algorithm, and compare with the method described in class based on $k=12$ independent uniform $[0,1]$ r.v. $\mathrm{s}$ and the CLT. Are the two "statistically indistinguishable"? How do the respective computational costs compare?
+\end{enumerate}}
+
+\vskip10pt
+{\sc Prove:}
+
+
+
+\vskip20pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[3]
+\textbf{To generate the Beta distribution $\mathcal{B} e(\alpha, \beta)$ we can use the following representation:
+\begin{enumerate}
+    \item[a] Show that, if $Y_{1} \sim \mathcal{G} a(\alpha, 1), Y_{2} \sim \mathcal{G} a(\beta, 1),$ then
+\[
+X=\frac{Y_{1}}{Y_{1}+Y_{2}} \sim \mathcal{B} e(\alpha, \beta)
+\]
+    \item[b] Use part (a) to construct an algorithm to generate a Beta random variable.
+    \item[d] Compare this algorithm with an Accept-Reject algorithm based on (i) the uniform distribution
+\end{enumerate}}
+
+\vskip10pt
+{\sc Prove:}
+
+??????????????????
+
+\vskip20pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[4]
+\textbf{For the Accept-Reject algorithm [A.4], with $f$ and $g$ properly normalized,
+\begin{enumerate}
+    \item[a] Show that the probability of accepting a random variable is
+\[
+P\left(U<\frac{f(X)}{M g(X)}\right)=\frac{1}{M}
+\]
+    \item[b] Show that $M \geq 1$
+    \item[c]  Let $N$ be the number of trials until the $k$ th random variable is accepted. Show that, for the normalized densities, $N$ has the negative binomial distribution $\mathcal{N} e g(k, p),$ where $p=1 / M .$ Deduce that the expected number of trials until $k$ random variables are obtained is $k M .$
+    \item[d] Show that the bound $M$ does not have to be tight; that is, there may be $M^{\prime}<M$ such that $f(x) \leq M^{\prime} g(x) .$ Give an example where it makes sense to use $M$ instead of $M^{\prime}$
+    \item[e] When the bound $M$ is too tight (i.e., when $f(x)>M g(x)$ on a non-negligible part of the support of $f),$ show that the algorithm $[A .4]$ does not produce a generation from $f .$ Give the resulting distribution.
+\end{enumerate}}
+
+\vskip10pt
+{\sc Prove:}
+
+??????????????????
+
+\vskip20pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[5]
+\textbf{Given a normal distribution $N(0,1)$ restricted to $\mathbb{R}^{+},$ construct an AcceptReject algorithm based on $E x p(\lambda)$ and optimize in $\lambda .$ Repeat for intervals $[1, \infty),[2, \infty),[4, \infty) .$ For each interval, compare the efficiency to direct rejection sampling from the normal.}
+
+\vskip10pt
+{\sc Prove:}
+
+??????????????????
+
+\vskip20pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{parts}
+
+\end{document}
