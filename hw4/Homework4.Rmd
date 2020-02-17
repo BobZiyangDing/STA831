@@ -1,0 +1,528 @@
+---
+title: "Homework 4"
+author: "Ziyang (Bob) Ding"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:  html_document
+latex_engine: xelatex
+mainfont: "Times New Roman"
+---
+
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+</style>
+
+## Problem 1
+
+**Consider a bivariate normal population with $\mu_{1}=0, \mu_{2}=2, \sigma_{11}=2, \sigma_{22}=1$ and $\rho_{12}=.5$**
+
+* **(a)**
+**Write out the Mahalanobis distance to the mean as a function of $x_{1}$ and $x_{2}$**
+
+* **(b)**
+**Evaluate the density at the point $x=(1,2)$**
+
+* **(c)** 
+**Determine and sketch the constant-density countour that contains $50 \%$ of the probability. (Hint: use the population principal components ).**
+
+&nbsp;
+
+**Proof**
+
+* **(a)**
+
+### DISCLAIMER: SORRY! I RELAIZED THAT I MESSED UP THE OFF DIAGONAL VALUE OF THE COVARIANCE MATRIX. IT SHOULD BE $\frac{\sqrt{2}}{2}$. BUT I THINK I ALREADY UNDERSTAND EVERYTHING ABOUT THIS QUESTION THEREFORE I DIDN'T CHANGE THE OFF DIAGONAL TERM AND JUST KEPT USING 0.5. PLEASE DON'T TAKE POINT OFF FROM ME. TRUST ME, I UNDERSTAND IT. THANK YOU!
+
+We know that the Mahalanobis distance is in the form of
+
+$$
+\begin{aligned}
+    (x-\mu)^{\prime} \Sigma^{-1}(x-\mu)=\sum_{i=1}^{p} \sum_{j=1}^{p} \sigma^{i j}\left(x_{i}-\mu_{i}\right)\left(x_{j}-\mu_{j}\right)
+\end{aligned}
+$$
+
+Therefore, we just take into the value:
+
+
+$$
+\begin{aligned}
+    \begin{bmatrix}
+    x_1  & x_2-2
+    \end{bmatrix}
+    \begin{bmatrix}
+    2 & 0.5\\
+    0.5 & 1
+    \end{bmatrix}^{-1}
+    \begin{bmatrix}
+    x_1\\
+    x_2-2
+    \end{bmatrix} &= 
+    \begin{bmatrix}
+    x_1 & x_2-2
+    \end{bmatrix}
+    \begin{bmatrix}
+    \frac{4}{7} & -\frac{2}{7}\\
+    -\frac{2}{7} & \frac{8}{7}
+    \end{bmatrix}
+    \begin{bmatrix}
+    x_1\\
+    x_2 -2
+    \end{bmatrix}
+\end{aligned}
+$$
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* **(b)**
+
+Just plugin the value we get
+
+$$
+\begin{aligned}
+    \begin{bmatrix}
+    1 & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+    2 & 0.5\\
+    0.5 & 1
+    \end{bmatrix}^{-1}
+    \begin{bmatrix}
+    1\\
+    0
+    \end{bmatrix} &= 
+    \begin{bmatrix}
+    1 & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+    \frac{4}{7} & -\frac{2}{7}\\
+    -\frac{2}{7} & \frac{8}{7}
+    \end{bmatrix}
+    \begin{bmatrix}
+    1\\
+    0
+    \end{bmatrix} = \frac{4}{7}
+\end{aligned}
+$$
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* **(c)** 
+
+```{r}
+sig=matrix(c(2,1/2,1/2,1),nrow=2)
+L=t(chol(sig))
+mu=matrix(c(0,2),ncol=1)
+r=matrix(rnorm(5000),nrow=2)
+x=apply(L%*%r,2,function(t) t+mu)
+m=qgamma(0.5,1,1/2)
+y1=seq(-sqrt(m),sqrt(m),length.out = 100)
+y2=sqrt(m-y1^2)
+ell=apply(L%*%rbind(y1,y2),2,function(t) t+mu)
+plot(x[1,],x[2,])
+lines(ell[1,],ell[2,],col='red', lwd = 3)
+lines(2*mu[1]-ell[1,],2*mu[2]-ell[2,],col='red', lwd=3)
+        
+```
+
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+## Problem 2
+
+**Let $X$ be distributed as $N_{3}(\mu, \Sigma)$ where $\mu=[1,-1,2]$ and**
+
+$$
+\Sigma=\left[\begin{array}{ccc}{4} & {0} & {-1} \\ {0} & {5} & {0} \\ {-1} & {0} & {2}\end{array}\right]
+$$
+**Which of the following random variables are independent? Explain.**
+
+* **(a)** 
+**$X_{1}$ and $X_{2}$**
+
+* **(b)**
+**$X_{1}$ and $X_{3}$**
+
+* **(c)** 
+**$X_{2}$ and $X_{3}$**
+
+* **(d)** 
+**$\left(X_{1}, X_{3}\right)$ and $X_{2}$**
+
+* **(e)** 
+**$X_{1}$ and $X_{1}+3 X_{2}-2 X_{3}$**
+
+
+
+&nbsp;
+
+**Proof**
+
+
+* **(a)** 
+**$X_{1}$ and $X_{2}$**
+
+Yes, they are independent
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* **(b)**
+**$X_{1}$ and $X_{3}$**
+
+No, they are not independent
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* **(c)** 
+**$X_{2}$ and $X_{3}$**
+
+Yes, they are independent
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* **(d)** 
+**$\left(X_{1}, X_{3}\right)$ and $X_{2}$**
+
+Yes, they are independent, as the off block diagonal term is purely zero (for sure we need to rearrange the matrix a bit. Then we will know)
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* **(e)** 
+**$X_{1}$ and $X_{1}+3 X_{2}-2 X_{3}$**
+
+$$
+\begin{aligned}
+    \quad &\mathbb{E}[ (X_1)(X_{1}+3 X_{2}-2 X_{3}) ] - \mathbb{E}[X_1]\mathbb{E}[X_{1}+3 X_{2}-2 X_{3} ]\\ 
+    = &\mathbb{E}[ X_1^2 + 3X_1X_2  - 2X_1X_3 ] - 4 (1-6-4)\\
+    = & (1+4) +3(-1) -2(2-1)+ 36\\
+    = & 5 - 3 -2 + 36\\
+    = & 36 \neq 0
+\end{aligned}
+$$
+
+No, they are not independent
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+
+## Problem 3
+
+**Suppose $X$ and $Y$ are independent random vectors with**
+
+$$
+\begin{aligned}
+X=\left(\begin{array}{l}
+{X_{1}} \\
+{X_{2}}
+\end{array}\right) \sim N\left(\left(\begin{array}{l}
+{0} \\
+{0}
+\end{array}\right),\left(\begin{array}{cc}
+{1} & {\rho_{1}} \\
+{\rho_{1}} & {1}
+\end{array}\right)\right) \text { and } Y=\left(\begin{array}{l}
+{Y_{1}} \\
+{Y_{2}}
+\end{array}\right) \sim N\left(\left(\begin{array}{l}
+{0} \\
+{0}
+\end{array}\right),\left(\begin{array}{cc}
+{1} & {\rho_{2}} \\
+{\rho_{2}} & {1}
+\end{array}\right)\right)
+\end{aligned}
+$$
+**Define**
+
+$$
+\begin{aligned}
+\begin{array}{l}
+{\qquad U=\left(\begin{array}{c}
+{U_{1}} \\
+{U_{2}}
+\end{array}\right)=A\left(\begin{array}{c}
+{X_{1}} \\
+{Y_{1}}
+\end{array}\right) \quad \text { and } \quad V=\left(\begin{array}{c}
+{V_{1}} \\
+{V_{2}}
+\end{array}\right)=A\left(\begin{array}{c}
+{X_{2}} \\
+{Y_{2}}
+\end{array}\right)}
+\end{array}
+\end{aligned}
+$$
+**for**
+
+$$
+\begin{aligned}
+\begin{array}{l}
+{\qquad A=\left(\begin{array}{ll}
+{a_{11}} & {0} \\
+{a_{21}} & {a_{22}}
+\end{array}\right)}
+\end{array}
+\end{aligned}
+$$
+Show that $U_{1} \perp\!\!\!\perp  V_{2} | V_{1}$
+
+&nbsp;
+
+**Proof**
+
+We first notice that:
+
+$$
+\begin{aligned}
+  U_1 &= a_{11}X_1       \\       
+  U_2 &= a_{21}X_1 + a_{22}Y_2 \\
+  V_1 &= a_{11}X_2\\          
+  V_2 &= a_{21}X_2 + a_{22}Y_2 
+\end{aligned}
+$$
+Therefore, as long as $X_1$ is given, then the induced sigma field of $V_2 | V_1$ can be written out as
+
+$$
+\begin{aligned}
+U_1 &= a_{11}X_1\\
+V_2 | V_1 &= a_{22}Y_2 + \frac{a_{21}}{a_{11}}V_1
+\end{aligned}
+$$
+
+In this way, because we know that both of them follow Normal distribution, and that $X_1 \perp\!\!\!\perp Y_1$. Therefore, we know that $U_1 \perp\!\!\!\perp V_2|V_1$
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+
+## Problem 4
+
+**(Bayesian missing data problem) We are given the following set of (incomplete) bivariate observations:**
+
+$$
+\begin{array}{|c|cc|}
+\hline n & {y_{1}} & {y_{2}} \\
+\hline 1 & {1} & {1} \\
+{2} & {1} & {-1} \\
+{3} & {-1} & {-1} \\
+{4} & {-1} & {-1} \\
+{5} & {-1} & {-1} \\
+{6} & {2} & {*} \\
+{7} & {2} & {*} \\
+{8} & {-2} & {*} \\
+{8} & {-2} & {*} \\
+{9} & {*} & {2} \\
+{10} & {*} & {2} \\
+{11} & {*} & {-2} \\
+{12} & {*} & {-2} \\
+{12} & {*} & {-2} \\
+{12} & {*} & {-2} \\
+{12} & {*} & {-2} \\
+\hline
+\end{array}
+$$
+**where $*$ denotes a missing value. Assume $\mathbf{y}_{i}=\left(y_{1}, y_{2}\right) \sim N(\mathbf{0}, \mathbf{\Sigma})$ for $i=1, \ldots, n .$ Our goal is to estimate $\mathbf{\Sigma},$ specified by marginal variances $\sigma_{1}^{2}, \sigma_{2}^{2}$ and correlation coefficient $\rho$ Taking a Bayesian approach, we assign the noninformative Jeffrey's prior:**
+
+$$
+\begin{align}
+P(\boldsymbol{\Sigma}) \propto|\boldsymbol{\Sigma}|^{-3 / 2}
+\end{align}
+$$
+**yielding the complete-data posterior:**
+
+$$
+\begin{align}
+P\left(\boldsymbol{\Sigma} | \mathbf{y}_{i}, i=1, \ldots, n\right) \propto|\boldsymbol{\Sigma}|^{\frac{-3+n}{2}} e^{-\frac{1}{2} t r\left(\Sigma^{-1} \mathbf{s}\right)}
+\end{align}
+$$
+
+**where $\mathbf{S}$ is the sample sum-of-squares matrix. This is an inverse-Wishart(n, S) distribution (Gelman et al, 1995 ).**
+
+* **(a)**
+**Write down the (multiple) integral defining $\mu_{\rho}=\mathrm{E}(\rho |$ yobserved ), the marginal posterior expectation of $\rho .($ Hint: you will need to integrate out the missing data..) You do not need to solve this integral analytically; we will solve by importance sampling below.**
+
+* **(b)**
+**Give $\pi\left(\Sigma | \mathbf{y}_{1}, \ldots, \mathbf{y}_{4}\right),$ the (partial) posterior obtained by considering only the data points without missing values. Using the $r$Wishart() function in $\mathrm{R},$ construct a Monte Carlo estimate of the marginal distribution of $\rho$ under this partial posterior.**
+
+* **(c)**
+**Show that by combining this partial posterior with the known conditional distribution of $y | \Sigma$, we can construct an instrumental distribution $g$ for obtaining a Monte Carlo approximation of $\mu_{\rho}$ via importance sampling. (Hint: from part (a), notice that $g$ should be a distribution on both $\Sigma$ and the missing data. $)$**
+
+* **(d)** 
+**Implement your importance sampling algorithm. Use it to**
+  
+  + **[i]**. **Estimate $\mu_{\rho}$**
+  
+  + **[ii]**. **Estimate/plot $\pi\left(\rho | \mathbf{y}_{1}, \ldots, \mathbf{y}_{12}\right) .$ Does it look reasonable? Explain.**
+  
+* **(e)** 
+**Perform appropriate importance sampling diagnostics. Do you trust your results?**
+
+&nbsp;
+
+**Proof**
+
+* **(a)**
+
+$$
+\begin{aligned}
+    p\left(y_{i} | \Sigma\right) &=\frac{1}{2\pi \sigma_{1} \sigma_{2} \sqrt{1-p^{2}}} \exp \left\{-\frac{1}{2}\left(1-p^{2}\right)^{-1}\left(\frac{y_{i}^{2}}{\sigma_{1}^{2}}+\frac{y_{i_{2}}^{2}}{\sigma_{2}^{2}}-\frac{2 \rho {y_{i1} y_{i2}}}{\sigma_{1} \sigma_{2}}\right)\right\}\\
+    p(y | \Sigma)&=(2 \pi)^{-n}\left(\sigma_{1} \sigma_{2}\right)^{-n}\left(1-p^{2}\right)^{-\frac{n}{2}} \exp \left\{-\frac{1}{2\left(1-\rho^{2}\right)} \sum_{i=1}^{n}\left(\frac{y_{i}^{2}}{\sigma_{1}^{2}}+\frac{y_{i 2}^{2}}{\sigma_{2}^{2}}-\frac{2 \rho y_{i 1} y_{i 2}}{\sigma_{1} \sigma_{2}}\right)\right\}\\
+    p(y, \Sigma) &\propto(2 \pi)^{-n}\left(\sigma_{1} \sigma_{2}\right)^{-n}\left(1-p^{2}\right)^{-\frac{n}{2}}\left(\sigma_{1}^{2} \sigma_{2}^{2}\left(1-\rho^{2}\right)\right)^{-\frac{3}{2}} \exp \left\{-\frac{1}{2\left(1-\rho^{2}\right)} \sum_{i=1}^{n}\left(\frac{y_{i1}^{2}}{\sigma_{1}^{2}} \frac{y_{i_{2}}^{2}}{\sigma_{2}^{2}}-\frac{2 \rho y_{i1} y_{i2}}{\sigma_{1} \sigma_{2}}\right)\right\}\\
+    p(\rho | y) &\propto  p(\Sigma | y) d \sigma_{1} d \sigma_{2} \\
+    p\left(\rho | y_{obs}\right) & \propto \int p\left(\rho, y_{obs}, y_{m i s}\right) d y_{m i s} \\
+    &\left.\alpha \int p(y, \Sigma) d \sigma_{1} d \sigma_{2}\right) d y_{m i s} \\
+    & \propto \int\left(\sigma_{1} \sigma_{2}\right)^{-(n+3)}\left(1-p^{2}\right)^{-\frac{1}{2}(n+3)} \exp \left\{-\frac{1}{2\left(1-p^{2}\right)}\sum_{i=1}^n\left( \frac{y_{i1}^{2}}{\sigma_{1}^{2}}+\frac{y_{i2}^{2}}{\sigma_{2}^{2}}-\frac{2 \rho y_{i 1} y_{i 2}}{\sigma_{1} \sigma_{2}}\right)\right\} d \sigma_{1} d\sigma_2 d y_{m i s}\\
+    E\left(\rho | y_{0 b s}\right) &=\int \rho p\left(\rho | y_{0 k s}\right) d \rho \\
+    &=\frac{\int p\left(1-\rho^{2}\right)-\frac{1}{2}(n+3)^{-(n+3)} \exp \left\{-\frac{1}{2\left(1-\rho^{2}\right)} \sum_{i=1}^{n}\left(\frac{y_{i1}^{2}}{v_{1}^{2}}+\frac{y_{i 2}^{2}}{\sigma_{2}^{2}}-\frac{2 \rho y_{i1} y_{i 2}}{\sigma_{1} \sigma_{2}}\right) d \sigma_{1} d \sigma_{2} d y_{mis}\right] d \rho}{\int\left(1-\rho^{2}\right)^{-\frac{1}{2}(n+3)}\left[\int\left(\sigma_{1} \sigma_{2}\right)^{-(n+3)} \exp \left\{-\frac{1}{2\left(1-\rho^{2}\right)} \sum_{i=1}^{n}\left(\frac{y_{i1}^{2}}{\sigma_{1}^{2}}+\frac{y_{i2}^{2}}{\sigma_{2}^{2}}-\frac{2 \rho y_{i 1} y_{i 2}}{\sigma_{1} \sigma_{2}}\right) d \sigma_{1} d \sigma_{2} d y_{mis}\right] d \rho\right.}
+\end{aligned}
+$$
+
+
+* **(b)**
+
+We know that this will follow a Inverse-Wishard Distribution of inverse-Wishart(n, S). Therefore, we just need to sample a lot of $\Sigma$ from such distribution.
+
+```{r}
+# Make the observed data
+observed_y <- list(matrix(c(1,1), nrow=2, ncol = 1),
+                   matrix(c(1,-1), nrow=2, ncol = 1),
+                   matrix(c(-1,1), nrow=2, ncol = 1),
+                   matrix(c(-1,-1), nrow=2, ncol = 1))
+
+# Make the big S matrix
+S <- matrix(c(0,0,0,0), nrow = 2, ncol = 2, byrow = TRUE)
+for(i in observed_y){
+  S = S + i %*% t(i)
+}
+
+# Make function to get $\rho$ from the \Sigma
+getRho <- function(Sigma){
+  rho <- Sigma[1,2]  / sqrt(Sigma[1,1] * Sigma[2,2] )
+  return(rho)
+} 
+
+sumOfRhos <- 0
+df <- 4
+n <- 50000
+inverseS <- solve(S)
+RHO=rep(0,n)
+for (i in 1:n){
+  rw=rWishart(1,df,inverseS)
+  riw=solve(rw[,,1])
+  rho=getRho(riw)
+  RHO[i]=rho
+}
+
+hist(RHO)
+mean(RHO)
+```
+
+
+* **(c)**
+
+$$
+\begin{aligned}
+&\mu_{p}=\int \rho \pi\left(\Sigma | y_{obs }\right) d \varepsilon=\int \rho \frac{P\left(Y_{obs 5:12} | \Sigma\right) p\left(\Sigma | Y_{1:4}\right) p\left(Y_{1:4} \right)}{p\left(Y_{obs}\right)} d \Sigma\\
+\end{aligned}
+$$
+
+Take $g=p\left(\Sigma | Y_{1: 4}\right)$, $w=p\left(Y_{obs 5:12} | \Sigma\right)$, and $\hat{w}=\frac{w}{\sum_{j=1}^{N} w_{j}}$
+
+* **(d)** 
+
+```{r}
+set.seed(1)
+library(mvtnorm)
+
+N=100000
+wei=rep(0,N)
+hx=rep(0,N)
+rho_x=seq(-1.01,1.01,length.out = 80)
+ind=matrix(0,nrow = N,ncol=80)
+for (i in 1:N){
+rw=rWishart(1,df,inverseS)
+riw=solve(rw[,,1])
+hx[i]=riw[1,2]/sqrt(riw[1,1]*riw[2,2])
+for (j in 1:79){ind[i,j]=1*(hx[i]> rho_x[j] && hx[i]<= rho_x[j+1])}
+wei[i]=prod(dnorm(c(2,2,-2,-2),0,sqrt(riw[1,1])))*prod(dnorm(c(2,2,-2,-2),0,sqrt(riw[2,2])))
+}
+wei_renorm=wei/sum(wei)
+
+# Mean
+(mu_rho=sum(hx*wei_renorm))
+
+# Dist
+dens=apply(ind,2,function(col){sum(col*wei_renorm)})
+plot(seq(-1,1,length.out=79),dens[1:79],type='l', xlab='rho', ylab='prob')
+```
+
+I think this plot looks pretty reasonable because the partial posterior has shown a pretty high concentration on $\rho = \pm 1$. In this way, we see that there are 2 focus on the distribution. Besides, the distribution looks very symmetrical. And the data with the prior are similarly symmetrical. Therefore, this is a reasonable distribution.
+  
+* **(e)** 
+
+```{r}
+ess=N*(mean(wei_renorm))^2/mean(wei_renorm^2)
+ess
+```
+
+We can trust this result. This is pretty good though.
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
