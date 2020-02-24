@@ -32,6 +32,7 @@ h4.date { /* Header 4 - and the author and data headers use this too  */
 ## Problem 1
 
 **For a sample $\left(Y_{1}, \ldots, Y_{n}\right)$ from $g,$ define weights**
+
 $$
 \begin{aligned}
 w_{i}=\frac{\pi\left(Y_{i}\right) / g\left(Y_{i}\right)}{\sum_{j=1}^{n} \pi\left(Y_{j}\right) / g\left(Y_{j}\right)}
