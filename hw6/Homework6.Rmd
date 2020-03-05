@@ -1,0 +1,327 @@
+---
+title: "Homework 6"
+author: "Ziyang (Bob) Ding"
+header-includes:
+   - \usepackage{amsmath}
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:  pdf_document
+latex_engine: xelatex
+mainfont: "Times New Roman"
+
+---
+
+\newcommand*{\argmax}{arg\,max}
+\newcommand*{\argmin}{arg\,min}
+
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# Problem 1
+
+**In the exponential family, EM computations are somewhat simplified. Show that if the complete data density $f$ is of the form**
+$$
+\begin{aligned}
+f(y, z | \theta)=h(y, z) \exp \{\eta(\theta) T(y, z)-C(\theta)\}
+\end{aligned}
+$$
+
+**then we can write**
+
+$$
+\begin{aligned}
+Q\left(\theta | \theta^{(t)}, y\right)=E_{\theta^{(t)}}[\log (h(y, Z))]+\sum \eta_{i}(\theta) E_{\theta^{(t)}}\left[T_{i} | y\right]-C(\theta)
+\end{aligned}
+$$
+
+**so that calculating the complete data MLE only involves the simpler expectation $E_{\theta^{(t)}}\left[T_{i} | y\right],$ the expected sufficient statistics.}**
+
+&nbsp;
+
+**Proof**
+
+$$
+\begin{aligned}
+    Q(\theta | \theta^t, y) &= \mathbb{E}_{z|y,\theta^t}[\log f(y,z|\theta)]\\
+    &= \mathbb{E}_{z|y,\theta^t}[\log h(y, z) \exp \{\eta(\theta) T(y, z)-C(\theta)\}]\\
+    &= \mathbb{E}_{z|y,\theta^t}[\log h(y, z) +  \eta(\theta) T(y, z)-C(\theta)]\\
+    &= \mathbb{E}_{\theta^t}[\log h(y, z)] + \sum  \eta_i(\theta) \mathbb{E}_{\theta^t}[T_i|y]-C(\theta)\\
+\end{aligned}
+$$
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+# Problem 2
+
+**For the situation of Example $5.21,$ data $\left(x_{1}, x_{2}, x_{3}, x_{4}\right)=(125,18,20,34)$ are collected.**
+
+*(a) **Use the EM algorithm to find the MLE of $\theta$.**
+
+*(b) **(b) Use the Monte Carlo EM algorithm to find the MLE of $\theta .$ Compare your results to those of part (a).**
+
+&nbsp;
+
+**Proof**
+
+* (a)
+
+$$
+\begin{aligned}
+\theta^{(t+1)}=\frac{\frac{\theta^{(t)} x_{1}}{2+\theta_{0}}+x_{4}}{\frac{\theta^{(t)} x_{1}}{2+\theta_{0}}+x_{2}+x_{3}+x_{4}}
+\end{aligned}
+$$
+
+```{r}
+x1 = 125
+x2 = 18
+x3 = 20
+x4 = 34
+EM = function(n){
+theta = rep(0, n)
+for(i in 2:n){
+tmp = theta[i-1]*x1/(2+theta[i-1])
+theta[i] = (tmp+x4)/(tmp+x2+x3+x4)
+}
+return (theta[n])
+}
+t = EM(100)
+print(t)
+```
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (b)
+
+$$
+\begin{aligned}
+\theta^{(t+1)}=\frac{\frac{1}{m} \sum_{i=1}^{m} z_{i}+x_{4}}{\frac{1}{m} \sum_{i=1}^{m} z_{i}+x_{2}+x_{3}+x_{4}}
+\end{aligned}
+$$
+
+
+```{r}
+MCEM = function(n,m){
+theta = rep(0, n)
+for(i in 2:n){
+zm = sum(rbinom(m, x1, theta[i-1]/(2+theta[i-1])))/m
+theta[i] = (zm+x4)/(zm+x2+x3+x4)
+}
+return(theta[n])
+}
+MCEM(100, 100)
+
+th = rep(0,1000)
+for(m in 1:1000){
+th[m] = MCEM(100, m)
+}
+plot(1:1000, th, xlab = 'Number of MC samples', ylab = 'theta', type = 'l')
+abline(t,0, col = 'red')
+```
+
+
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+# Problem 3
+
+**The EM algorithm can also be implemented in a Bayesian hierarchical model to find a posterior mode. Suppose that we have the hierarchical model $X|\theta \sim f(x | \theta)$**
+
+$$
+\begin{aligned}
+\begin{array}{l}
+\theta|\lambda \sim \pi(\theta | \lambda) \\
+\lambda \sim \gamma(\lambda)
+\end{array}
+\end{aligned}
+$$
+
+**where interest would be in estimating quantities from $\pi(\theta | x) .$ since**
+
+$$
+\begin{aligned}
+\pi(\theta | x)=\int \pi(\theta, \lambda | x) d \lambda
+\end{aligned}
+$$
+
+**where $\pi(\theta, \lambda | x)=\pi(\theta | \lambda, x) \pi(\lambda | x),$ the EM algorithm is a candidate method for finding the mode of $\pi(\theta | x)$, where $\lambda$ would be used as the augmented data.**
+
+
+* (a) **Define $k(\lambda | \theta, x)=\pi(\theta, \lambda | x) / \pi(\theta | x)$ and show that**
+
+$$
+\begin{aligned}
+\log \pi(\theta | x)=\int \log \pi(\theta, \lambda | x) k\left(\lambda | \theta^{*}, x\right) d \lambda-\int \log k(\lambda | \theta, x) k\left(\lambda | \theta^{*}, x\right) d \lambda
+\end{aligned}
+$$
+
+
+* (b) **If the sequence $\left(\hat{\theta}_{(j)}\right)$ satisfies**
+
+$$
+\begin{aligned}
+\max _{\theta} \int \log \pi(\theta, \lambda | x) k\left(\lambda | \theta_{(j)}, x\right) d \lambda=\int \log \pi\left(\theta_{(j+1)}, \lambda | x\right) k\left(\lambda | \theta_{(j)}, x\right) d \lambda
+\end{aligned}
+$$
+
+**show that $\log \pi\left(\theta_{(j+1)} | x\right) \geq \log \pi\left(\theta_{(j)} | x\right) .$ Under what conditions will the sequence $\left(\hat{\theta}_{(j)}\right)$ converge to the mode of $\pi(\theta | x) ?$**
+
+* (c) **For the hierarchy**
+
+$$
+\begin{aligned}
+\begin{array}{l}
+X | \theta \sim \mathcal{N}(\theta, 1) \\
+\theta | \lambda \sim \mathcal{N}(\lambda, 1)
+\end{array}
+\end{aligned}
+$$
+
+**with $\pi(\lambda)=1,$ show how to use the EM algorithm to calculate the posterior mode of $\pi(\theta | x)$**
+
+
+&nbsp;
+
+**Proof**
+
+* (a)
+
+$$
+\begin{aligned}
+\log \pi(\theta | x) &= \log \pi(\theta, \lambda | x)-\log k(\lambda | \theta, x) \\
+\log \pi(\theta | x) k\left(\lambda | \theta^{*}, x\right) &=\log \pi(\theta, \lambda | x) k\left(\lambda | \theta^{*}, x\right)-\log k(\lambda | \theta, x) k\left(\lambda | \theta^{*}, x\right) \\
+\int \log \pi(\theta | x) k\left(\lambda | \theta^{*}, x\right) d \lambda &=\log \pi(\theta, \lambda | x) k\left(\lambda | \theta^{*}, x\right) d \lambda-\log k(\lambda | \theta, x) k\left(\lambda | \theta^{*}, x\right) d \lambda \\
+\log \pi(\theta, \lambda | x) &=\log \pi(\theta, \lambda | x) k\left(\lambda | \theta^{*}, x\right) d \lambda-\log k(\lambda | \theta, x) k\left(\lambda | \theta^{*}, x\right) d \lambda
+\end{aligned}
+$$
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (b)
+
+$$
+\begin{array}{l}
+\quad \int \log k(\lambda | \theta, x) k\left(\lambda | \theta_{(j)}, x\right) d \lambda-\int \log k\left(\lambda | \theta_{(j)}, x\right) k\left(\lambda | \theta_{(j)}, x\right) d \lambda \\
+=\int \log \frac{k(\lambda | \theta, x)}{k\left(\lambda | \theta_{(j)}, x\right)} k\left(\lambda | \theta_{(j)}, x\right) d \lambda \\
+\leq \log \int \frac{k(\lambda | \theta, x)}{k\left(\lambda | \theta_{(j)}, x\right)} k\left(\lambda | \theta_{(j)}, x\right) d \lambda\\
+=0
+\end{array}
+$$
+
+Therefore, we know that EM always converge to a zero-gradient point given that $\log \pi(\theta | x)$ is concave (local maximum, local mimimum, saddle point). 
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+* (c)
+
+$$
+\begin{aligned}
+k(\lambda | \theta, x) &=\pi(\lambda | \theta, x) \\
+&=\pi(\lambda | \theta) \\
+& \propto \pi(\theta | \lambda) \\
+& \propto e^{-\frac{(\lambda-\theta)^{2}}{2}} \\
+& \sim N(\theta, 1) \\
+\pi(\theta, \lambda | x) & \propto \pi(\theta, \lambda) \pi(x | \theta, \lambda) \\
+& \propto e^{-\frac{(\lambda-\theta)^{2}}{2}} e^{-\frac{(x-\theta)^{2}}{2}} \\
+Q\left(\theta | \theta_{(j)}\right)&=C+E_{\lambda | \theta_{(j)}}\left(-\frac{(\lambda-\theta)^{2}}{2}-\frac{(x-\theta)^{2}}{2}\right) & \\
+&=C^{\prime}-\frac{(\theta-x)^{2}}{2}-\frac{\left(\theta-\theta_{j}\right)^{2}}{2} & \\
+\theta_{j+1} &= \left(x+\theta_{j}\right) / 2 &
+\end{aligned}
+$$
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+# Problem 4
+
+**Let $M$ be a random matrix having standard Wishart distribution with $\nu$ d.o.f., and let $\Sigma=L L^{\prime}$ be symmetric positive definite. Show that $\tilde{M}=L M L^{\prime}$ has distribution $W_{p}(\Sigma, \nu)$**
+
+&nbsp;
+
+**Proof**
+
+$$
+\begin{aligned}
+    f(M)&\sim \text{IW}(I, \nu)\\
+    f(LML^T) &\sim \text{IW}(LIL^T,\nu ) = \text{IW}(\Sigma, \nu)
+\end{aligned}
+$$
+
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
